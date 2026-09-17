@@ -1,0 +1,38 @@
+package modelo;
+
+import interfaces.EstadoPedido;
+
+import java.util.Random;
+
+public class Repartidor implements Runnable {
+    private String nombre;
+    private ZonaDeCarga zonaDeCarga;
+
+    public Repartidor(String nombre, ZonaDeCarga zonaDeCarga) {
+        this.nombre = nombre;
+        this.zonaDeCarga = zonaDeCarga;
+    }
+
+    @Override
+    public void run() {
+        Random rnd = new Random();
+        while (true) {
+            Pedido p = zonaDeCarga.retirarPedido();
+            if (p == null) break;
+
+            p.setEstado(EstadoPedido.EN_REPARTO);
+            System.out.println(nombre + " retiró " + p + " → EN_REPARTO");
+
+            try {
+                Thread.sleep(1000 + rnd.nextInt(2000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+
+            p.setEstado(EstadoPedido.ENTREGADO);
+            System.out.println(nombre + " entregó pedido " + p.getId() + " → ENTREGADO");
+        }
+        System.out.println(nombre + " finalizó");
+    }
+}
